@@ -25,6 +25,9 @@
     <Filter Include="internal\Common">
       <UniqueIdentifier>{3f57fe06-09cc-40d4-9e33-266a31531fd3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="shared\BSMemory">
+      <UniqueIdentifier>{d1d1a9a2-290f-4f46-be93-2a3f4714a883}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -87,6 +90,18 @@
     </ClCompile>
     <ClCompile Include="internal\Common\CommonUtils.cpp">
       <Filter>internal\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\Utils\DebugLog.cpp">
+      <Filter>shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\BSMemory\BSMemory.cpp">
+      <Filter>shared\BSMemory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\BSMemory\BSScrapMemory.cpp">
+      <Filter>shared\BSMemory</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\Game\Gamebryo\NiCriticalSection.cpp">
+      <Filter>internal\Game\Gamebryo</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -170,6 +185,21 @@
     </ClInclude>
     <ClInclude Include="internal\Common\CommonUtils.hpp">
       <Filter>internal\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\Utils\DebugLog.hpp">
+      <Filter>shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\BSMemory\BSMemory.hpp">
+      <Filter>shared\BSMemory</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\BSMemory\BSScrapMemory.hpp">
+      <Filter>shared\BSMemory</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\Game\Gamebryo\NiObject.hpp">
+      <Filter>internal\Game\Gamebryo</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\Game\Gamebryo\NiRTTI.hpp">
+      <Filter>internal\Game\Gamebryo</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

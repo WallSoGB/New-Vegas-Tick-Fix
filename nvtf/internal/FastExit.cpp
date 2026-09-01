@@ -14,6 +14,6 @@ namespace FastExit {
 	}
 
 	void InitHooks() {
-		WriteRelJump(0x86B66E, FastExitHook);
+		HookUtils::WriteRelJump(0x86B66E, FastExitHook);
 	}
 }

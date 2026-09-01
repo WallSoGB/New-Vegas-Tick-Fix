@@ -1,35 +1,34 @@
 #pragma once
 
+#include "NiObject.hpp"
 #include "NiCriticalSection.hpp"
 
 class NiShader;
 class NiDynamicEffectState;
 class NiRenderedCubeMap;
-class BSShaderAccumulator;
+class NiAccumulator;
 class NiDX9Renderer;
 class NiPropertyState;
 class NiRenderTargetGroup;
 class NiFrustum;
 
-class NiRenderer {
+class NiRenderer : public NiObject {
 public:
 	NiRenderer();
 	virtual ~NiRenderer();
 
-	char							pad[60]; // We don't need everything
-	char							unk040[62];
+	NiPointer<NiAccumulator>		m_spAccum;
+	NiPropertyState*				m_pkCurrProp;
+	NiDynamicEffectState*			m_pkCurrEffects;
+	NiShader*						m_spErrorShader;
 	NiCriticalSection				m_kRendererLock;
-	char							unk0A0[94];
 	NiCriticalSection				m_kPrecacheCriticalSection;
-	char							unk120[95];
 	NiCriticalSection				m_kSourceDataCriticalSection;
-	char							unk1AC[92];
 	uint32_t						m_eSavedFrameState;
 	uint32_t						m_eFrameState;
 	uint32_t						m_uiFrameID;
 	bool							m_bRenderTargetGroupActive;
 	bool							m_bBatchRendering;
-	int								unk20C[29];
 
 	void LockRenderer();
 	bool TryLockRenderer();
@@ -37,3 +36,4 @@ public:
 };
 
 ASSERT_SIZE(NiRenderer, 0x280)
+ASSERT_OFFSET(NiRenderer, m_kRendererLock, 0x80)

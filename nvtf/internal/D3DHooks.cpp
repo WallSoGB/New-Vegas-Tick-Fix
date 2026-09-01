@@ -8,7 +8,11 @@
 #include "d3dx9.h"
 #include "psapi.h"
 
+#ifndef _DEBUG
 #pragma comment (lib, "d3dx9.lib")
+#else
+#pragma comment (lib, "d3dx9d.lib")
+#endif
 
 namespace D3DHooks {
 	namespace Setting {
@@ -27,7 +31,7 @@ namespace D3DHooks {
 		constexpr const char* pDirectFlipModeMatchAddr = "DirectFlipModeMatchAddr";
 
 
-		CallDetour kDirectFlipModeMatchDetour;
+		HookUtils::CallDetour kDirectFlipModeMatchDetour;
 		struct _ADAPTERINFO {
 			char unk0[16];
 			char cDisplayName[32];
@@ -168,9 +172,9 @@ namespace D3DHooks {
 					
 					if (uiSwapChainResetAddr) {
 						if (bIsWindows11)
-							PatchMemoryNop(uiSwapChainResetAddr, 6);
+							HookUtils::PatchMemoryNop(uiSwapChainResetAddr, 6);
 						else
-							SafeWrite8(uiSwapChainResetAddr + 6, 1);
+							HookUtils::SafeWrite8(uiSwapChainResetAddr + 6, 1);
 					}
 					else {
 						MessageBox(nullptr, "Failed to find CSwapChain::Reset", "Error", MB_OK);
@@ -192,7 +196,7 @@ namespace D3DHooks {
 						uiDirectFlipModeMatchAddr = (uintptr_t)Sig::find(hD3D9, kModInfo.SizeOfImage, bIsWindows11 ? W11 : W10);
 
 					if (uiDirectFlipModeMatchAddr) {
-						kDirectFlipModeMatchDetour.ReplaceCallEx(uiDirectFlipModeMatchAddr, &CEnum::DirectFlipModeMatchHook);
+						kDirectFlipModeMatchDetour.ReplaceCall(uiDirectFlipModeMatchAddr, &CEnum::DirectFlipModeMatchHook);
 					}
 					else {
 						MessageBox(nullptr, "Failed to find CEnum::DirectFlipModeMatch", "Error", MB_OK);
@@ -234,22 +238,22 @@ namespace D3DHooks {
 
 	void InitHooks() {
 		if (Setting::bAllowDirectXDebugging) [[unlikely]]
-			SafeWriteBuf(0x09F9968, "\xC2\x04\x00\xCC\xCC\xCC", 6);
+			HookUtils::SafeWriteBuf(0x09F9968, "\xC2\x04\x00\xCC\xCC\xCC", 6);
 
 		if (Setting::bToggleTripleBuffering) [[likely]]
-			SafeWrite8(0x1189464, 2);
+			HookUtils::SafeWrite8(0x1189464, 2);
 
 		if (Setting::bUseDefaultPoolForTextures) [[likely]] {
-			SafeWrite32(0xFDF3FC, uint32_t(D3DXCreateTextureFromFileInMemoryHook));
-			SafeWrite32(0xFDF400, uint32_t(D3DXCreateCubeTextureFromFileInMemoryHook));
-			SafeWrite32(0xFDF404, uint32_t(D3DXCreateVolumeTextureFromFileInMemoryHook));
+			HookUtils::SafeWrite32(0xFDF3FC, uint32_t(D3DXCreateTextureFromFileInMemoryHook));
+			HookUtils::SafeWrite32(0xFDF400, uint32_t(D3DXCreateCubeTextureFromFileInMemoryHook));
+			HookUtils::SafeWrite32(0xFDF404, uint32_t(D3DXCreateVolumeTextureFromFileInMemoryHook));
 		}
 	}
 
 	void InitEarlyHooks() {
 		if (Setting::bUseFlipModel) {
-			ReplaceCall(0xE69470, FlipModel::IsD3D9CreateHook); // NiDX9Renderer::CreateDirect3D9
-			ReplaceCall(0xE69A69, FlipModel::IsD3D9CreateHook); // NiDX9SystemDesc::Get
+			HookUtils::ReplaceCall(0xE69470, FlipModel::IsD3D9CreateHook); // NiDX9Renderer::CreateDirect3D9
+			HookUtils::ReplaceCall(0xE69A69, FlipModel::IsD3D9CreateHook); // NiDX9SystemDesc::Get
 		}
 	}
 }

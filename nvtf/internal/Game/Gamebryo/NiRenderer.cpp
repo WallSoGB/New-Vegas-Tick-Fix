@@ -2,7 +2,7 @@
 
 // GAME - 0x4A0370
 void NiRenderer::LockRenderer() {
-	m_kRendererLock.Lock();
+	ThisCall(0x4A0370, this);
 }
 
 bool NiRenderer::TryLockRenderer() {
@@ -11,5 +11,5 @@ bool NiRenderer::TryLockRenderer() {
 
 // GAME - 0x4A03C0
 void NiRenderer::UnlockRenderer() {
-	m_kRendererLock.Unlock();
+	ThisCall(0x4A03C0, this);
 }

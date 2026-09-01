@@ -181,9 +181,9 @@ namespace TickFix {
 
 	void InitTimerHook() {
 		if (Setting::bRemoveGTCLimits) [[unlikely]]
-			ReplaceCallEx(0x86F296, &BSTimerSafe::TimeGlobalHook_NoSafeGuards);
+			HookUtils::ReplaceCall(0x86F296, &BSTimerSafe::TimeGlobalHook_NoSafeGuards);
 		else [[likely]]
-			ReplaceCallEx(0x86F296, &BSTimerSafe::TimeGlobalHook);
+			HookUtils::ReplaceCall(0x86F296, &BSTimerSafe::TimeGlobalHook);
 	}
 
 	void ReadINI(const char* iniPath) {
@@ -205,7 +205,7 @@ namespace TickFix {
 		if (Setting::bAlternateGTCFix) [[unlikely]]
 			timeBeginPeriod(1);
 
-		SafeWrite32(0xFDF060, uint32_t(GetTickCountHook));
+		HookUtils::SafeWrite32(0xFDF060, uint32_t(GetTickCountHook));
 
 		if (Setting::bFPSFix) [[likely]] {
 			dDesiredMaxMS	= 1000.0 / double(Setting::usMaxFPS);

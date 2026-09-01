@@ -1,8 +1,6 @@
 #include "internal/Game/Bethesda/BSCriticalSection.hpp"
 #include "internal/Game/Bethesda/MemoryLevelManager.hpp"
 #include "internal/Common/CommonUtils.hpp"
-template <typename T>
-extern void WriteRelJump(SIZE_T jumpSrxc, T jumpTgt);
 
 namespace MiscHooks
 {
@@ -40,7 +38,7 @@ namespace MiscHooks
 	void InitHooks() {
 		if (Setting::iPCBMode) 
 		{
-			WriteRelJump(0x05B6CD0, hk_Script_PCB);
+			HookUtils::WriteRelJump(0x05B6CD0, hk_Script_PCB);
 			CommonUtils::GetUtilsManager()->RegisterMainLoopFunction(PurgeCellBuffers);
 		}
 			

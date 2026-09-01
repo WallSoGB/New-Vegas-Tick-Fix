@@ -8,10 +8,16 @@
 #include <internal/TickFix.hpp>
 #include <internal/MiscHooks.hpp>
 #include <internal/Common/CommonUtils.hpp>
+
+#include <shared/BSMemory/BSMemory.hpp>
+BS_ALLOCATORS
+
 constexpr uint32_t		MIN_NVSE_VERSION = PACKED_NVSE_VERSION;
 constexpr uint32_t		PLUGIN_VERSION = 1061;
 constexpr const char*	PLUGIN_NAME = "NVTF";
 constexpr const char*	PLUGIN_FULL_NAME = "New Vegas Tick Fix";
+
+IDebugLog	   gLog("logs\\NVTF.log");
 
 namespace Main {
 

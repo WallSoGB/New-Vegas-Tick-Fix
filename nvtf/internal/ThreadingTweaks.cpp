@@ -11,10 +11,9 @@ namespace ThreadingTweaks {
 		bool	bReplaceDeadlockCSWithWaitAndSleep	= false;
 	}
 
-	struct BSSpinLock {
+	struct alignas(32) BSSpinLock {
 		uint32_t uiOwningThread = 0;
 		uint32_t uiLockCount	= 0;
-		uint32_t unk08[6]		= {};
 	};
 
 	void WINAPI EnterCriticalSectionRendererHook(LPCRITICAL_SECTION lpCriticalSection) {
@@ -78,31 +77,31 @@ namespace ThreadingTweaks {
 		switch (Setting::ucReplaceTextureCreationLocks) {
 		case 1: [[likely]]
 			// NiDX9Renderer::CreateSourceTextureRendererData
-			SafeWrite16(0xE6DC4C, 0x90);
-			WriteRelCall(0xE6DC4D, EnterCriticalSectionRendererHook);
+			HookUtils::SafeWrite16(0xE6DC4C, 0x90);
+			HookUtils::WriteRelCall(0xE6DC4D, EnterCriticalSectionRendererHook);
 
 			// NiDX9TextureManager::PrepareTextureForRendering
-			SafeWrite16(0xE90B46, 0x90);
-			WriteRelCall(0xE90B47, EnterCriticalSectionRendererHook);
+			HookUtils::SafeWrite16(0xE90B46, 0x90);
+			HookUtils::WriteRelCall(0xE90B47, EnterCriticalSectionRendererHook);
 
 			// NiDX9TextureManager::PrecacheTexture
-			SafeWrite16(0xE90C91, 0x90);
-			WriteRelCall(0xE90C92, EnterCriticalSectionRendererHook);
+			HookUtils::SafeWrite16(0xE90C91, 0x90);
+			HookUtils::WriteRelCall(0xE90C92, EnterCriticalSectionRendererHook);
 			break;
 		case 2:
 			// NiDX9Renderer::CreateSourceTextureRendererData
-			SafeWriteBuf(0xE6DC4B, "\x90\x90\x90\x90\x90\x90\x90", 7);
-			SafeWriteBuf(0xE6DC69, "\x90\x90\x90\x90\x90\x90\x90", 7);
+			HookUtils::SafeWriteBuf(0xE6DC4B, "\x90\x90\x90\x90\x90\x90\x90", 7);
+			HookUtils::SafeWriteBuf(0xE6DC69, "\x90\x90\x90\x90\x90\x90\x90", 7);
 
 			// NiDX9TextureManager::PrepareTextureForRendering
-			SafeWriteBuf(0xE90B45, "\x90\x90\x90\x90\x90\x90\x90", 7);
-			SafeWriteBuf(0xE90B79, "\x90\x90\x90\x90\x90\x90\x90", 7);
-			SafeWriteBuf(0xE90BAA, "\x90\x90\x90\x90\x90\x90\x90", 7);
+			HookUtils::SafeWriteBuf(0xE90B45, "\x90\x90\x90\x90\x90\x90\x90", 7);
+			HookUtils::SafeWriteBuf(0xE90B79, "\x90\x90\x90\x90\x90\x90\x90", 7);
+			HookUtils::SafeWriteBuf(0xE90BAA, "\x90\x90\x90\x90\x90\x90\x90", 7);
 
 			// NiDX9TextureManager::PrecacheTexture
-			SafeWriteBuf(0xE90C90, "\x90\x90\x90\x90\x90\x90\x90", 7);
-			SafeWriteBuf(0xE90CBD, "\x90\x90\x90\x90\x90\x90\x90", 7);
-			SafeWriteBuf(0xE90CFC, "\x90\x90\x90\x90\x90\x90\x90", 7);
+			HookUtils::SafeWriteBuf(0xE90C90, "\x90\x90\x90\x90\x90\x90\x90", 7);
+			HookUtils::SafeWriteBuf(0xE90CBD, "\x90\x90\x90\x90\x90\x90\x90", 7);
+			HookUtils::SafeWriteBuf(0xE90CFC, "\x90\x90\x90\x90\x90\x90\x90", 7);
 			break;
 		default:
 			break;
@@ -113,8 +112,8 @@ namespace ThreadingTweaks {
 		// NiDX9Renderer::PerformPrecache
 		switch (Setting::ucReplaceGeometryPrecacheLocks) {
 		case 0:
-			SafeWrite16(0xE74126, 0xBE90);
-			SafeWrite32(0xE74128, reinterpret_cast<uint32_t>(EnterCriticalSectionRendererHook));
+			HookUtils::SafeWrite16(0xE74126, 0xBE90);
+			HookUtils::SafeWrite32(0xE74128, reinterpret_cast<uint32_t>(EnterCriticalSectionRendererHook));
 			break;
 		default: [[likely]]
 			GeometryPrecacheQueue::InitHooks();
@@ -125,52 +124,52 @@ namespace ThreadingTweaks {
 	void TweakMiscCriticalSections() {
 		// Replaces NiGlobalStringTable's critical section creation
 		// Works only if JIP is not installed, as JIP replaces NiGlobalStringTable with its own implementation
-		SafeWrite8(0xA5B571, 0x90);
-		WriteRelCall(0xA5B572, InitializeCriticalSectionHook);
+		HookUtils::SafeWrite8(0xA5B571, 0x90);
+		HookUtils::WriteRelCall(0xA5B572, InitializeCriticalSectionHook);
 
 		// Replaces NiCriticalSection::Enter
-		SafeWrite8(0x04538EB, 0x90);
-		WriteRelCall(0x04538EC, EnterCriticalSectionHook);
+		HookUtils::SafeWrite8(0x04538EB, 0x90);
+		HookUtils::WriteRelCall(0x04538EC, EnterCriticalSectionHook);
 	}
 
 	void AddPauseToSpinLocks() {
 		// BSSpinlock::Lock
-		WriteRelCall(0x040FC63, IntrinsicSleepHook);
-		WriteRelCall(0x040FC57, IntrinsicSleepHook);
+		HookUtils::WriteRelCall(0x040FC63, IntrinsicSleepHook);
+		HookUtils::WriteRelCall(0x040FC57, IntrinsicSleepHook);
 
 		// Model::ModUseCount
-		WriteRelCall(0x040FC57, IntrinsicSleepHook);
+		HookUtils::WriteRelCall(0x040FC57, IntrinsicSleepHook);
 
 		// IOManager::WaitForTask
-		WriteRelCall(0x5289CB, IntrinsicSleepHook);
+		HookUtils::WriteRelCall(0x5289CB, IntrinsicSleepHook);
 
 		// IOManager::TryCancelTask
-		WriteRelCall(0x528936, IntrinsicSleepHook);
+		HookUtils::WriteRelCall(0x528936, IntrinsicSleepHook);
 
 		// BSTaskManager::CancelTask
-		WriteRelCall(0x44AD0C, IntrinsicSleepHook);
-		WriteRelCall(0x44AD23, IntrinsicSleepHook);
-		WriteRelCall(0x44AD3A, IntrinsicSleepHook);
+		HookUtils::WriteRelCall(0x44AD0C, IntrinsicSleepHook);
+		HookUtils::WriteRelCall(0x44AD23, IntrinsicSleepHook);
+		HookUtils::WriteRelCall(0x44AD3A, IntrinsicSleepHook);
 
 		// NavMeshObstacleManager::ForceUpdate
-		WriteRelCall(0x6C39F6, IntrinsicSleepHook);
-		WriteRelCall(0x6C3A83, IntrinsicSleepHook);
-		WriteRelCall(0x6C3B13, IntrinsicSleepHook);
+		HookUtils::WriteRelCall(0x6C39F6, IntrinsicSleepHook);
+		HookUtils::WriteRelCall(0x6C3A83, IntrinsicSleepHook);
+		HookUtils::WriteRelCall(0x6C3B13, IntrinsicSleepHook);
 
 		// NavMeshObstacleManager::PushTask
-		WriteRelCall(0x6C5DFD, IntrinsicSleepHook);
+		HookUtils::WriteRelCall(0x6C5DFD, IntrinsicSleepHook);
 	}
 
 	void TurnProblematicCSIntoBusyLocks() {
 		static BSSpinLock LipFileLCS = {};
 
 		// Hooks in Actor::SpeakSoundFunction, replaces critical section with a spin lock
-		SafeWrite32(0x8A2252 + 1, reinterpret_cast<uint32_t>(&LipFileLCS));
-		WriteRelCall(0x8A2257, 0x40FBF0);
-		SafeWrite32(0x8A245F + 1, reinterpret_cast<uint32_t>(&LipFileLCS));
-		WriteRelCall(0x8A2464, 0x40FBA0);
-		SafeWrite32(0x8A2CC9 + 1, reinterpret_cast<uint32_t>(&LipFileLCS));
-		WriteRelCall(0x8A2CCE, 0x40FBA0);
+		HookUtils::SafeWrite32(0x8A2252 + 1, reinterpret_cast<uint32_t>(&LipFileLCS));
+		HookUtils::WriteRelCall(0x8A2257, 0x40FBF0);
+		HookUtils::SafeWrite32(0x8A245F + 1, reinterpret_cast<uint32_t>(&LipFileLCS));
+		HookUtils::WriteRelCall(0x8A2464, 0x40FBA0);
+		HookUtils::SafeWrite32(0x8A2CC9 + 1, reinterpret_cast<uint32_t>(&LipFileLCS));
+		HookUtils::WriteRelCall(0x8A2CCE, 0x40FBA0);
 	}
 
 	void ReadINI(const char* iniPath) {

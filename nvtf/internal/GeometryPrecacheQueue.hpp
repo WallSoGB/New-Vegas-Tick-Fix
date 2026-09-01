@@ -1,9 +1,13 @@
 #pragma once
 
-#include "Game/Gamebryo/NiRefObject.hpp"
+#include "Game/Gamebryo/NiObject.hpp"
 #include "Game/Gamebryo/NiDX9Renderer.hpp"
-#include <shared/Utils/WaitLock.hpp>
-#include <queue>
+#include <vector>
+#include <atomic>
+
+#include <shared/BSMemory/BSScrapMemory.hpp>
+template<class T>
+using BSScrapVector = std::vector<T, BSScrapAllocator<T>>;
 
 class NiD3DShaderDeclaration;
 class NiNode;
@@ -12,12 +16,14 @@ class GeometryPrecacheQueue : public NiDX9Renderer {
 public:
 	static void InitHooks();
 
-	bool PrecacheGeometry_MT(NiRefObject* apGeometry, uint32_t auiBonesPerPartition, uint32_t auiBonesPerVertex, NiD3DShaderDeclaration* apShaderDeclaration);
+	void PurgeGeometryData(NiObject* apGeomData);
+	bool PrecacheGeometry_MT(NiObject* apGeometry, uint32_t auiBonesPerPartition, uint32_t auiBonesPerVertex, NiD3DShaderDeclaration* apShaderDeclaration);
 	void PerformPrecache_MT();
 
 private:
 	struct QueuedObject {
-		NiPointer<NiRefObject>	spGeometry;
+		NiPointer<NiObject>		spGeometry;
+		NiObject*				pGeometryData;
 		uint32_t				uiBonesPerPartition = 0;
 		uint32_t				uiBonesPerVertex	= 0;
 		NiD3DShaderDeclaration* pShaderDeclaration	= nullptr;
@@ -26,10 +32,10 @@ private:
 	static HANDLE hTaskEvent;
 	static HANDLE hPauseEvent;
 
-	static WaitLock								kQueueLock;
-	static std::queue<QueuedObject>				kQueue;
-	static std::vector<NiPointer<NiRefObject>>	kActiveObjects;
-	static HANDLE 								hThread;
+	static std::atomic_bool							bIsProcessing;
+	static SRWLOCK									kQueueLock;
+	static std::vector<QueuedObject>				kQueue;
+	static HANDLE 									hThread;
 
 	void StartProcessing();
 	void StopProcessing();

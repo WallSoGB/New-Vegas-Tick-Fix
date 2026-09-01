@@ -13,8 +13,6 @@ public:
 	static NiDX9Renderer* GetSingleton();
 
 	static bool IsD3D9Create();
-
-	bool PrecacheGeometryEx(NiRefObject* apGeometry, uint32_t uiBonesPerPartition, uint32_t uiBonesPerVertex, NiD3DShaderDeclaration* apShaderDeclaration); // Unvirtualized
 };
 
 ASSERT_OFFSET(NiDX9Renderer, uiPrePackObjectCount, 0x61C);
